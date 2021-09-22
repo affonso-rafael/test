@@ -7,7 +7,7 @@ jobs:
     steps:
       - name: generate tag
         id: hello
-        uses: affonso-rafael/bump-version@v0.0.3
+        uses: affonso-rafael/bump-version@v0.0.4
         with:
           environment: 'dev'
           type: 'major'
