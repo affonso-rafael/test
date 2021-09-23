@@ -1,0 +1,31 @@
+name: deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: Environment (dev, qa, prod or sandbox)
+        default: dev
+        required: true
+      type:
+        description: Version increment (patch, minor, major)
+        default: patch
+        required: true
+
+jobs:
+  bump-version:
+    name: Bump Version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout on branch
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy tag
+        run: |
+          bash <(curl -s https://raw.githubusercontent.com/estrategiahq/public-scripts/master/git_tag_versioning.sh) \
+          -p ${{ github.event.inputs.env }} \
+          -t ${{ github.event.inputs.type }} \
+          -f true

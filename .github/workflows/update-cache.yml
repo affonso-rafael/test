@@ -1,0 +1,41 @@
+name: update-cache
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-cache:
+    name: Update node modules cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+        with:
+          persist-credentials: false
+
+      - name: Check node modules cache
+        uses: actions/cache@v2
+        id: node-module-cache
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Setup NPM registry
+        if: steps.node-module-cache.outputs.cache-hit != 'true'
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12'
+
+      - name: Install Dependencies for caching
+        if: steps.node-module-cache.outputs.cache-hit != 'true'
+        run: npm install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
